@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #f5f5f7;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,145 +22,167 @@
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 500px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            padding: 48px;
+            max-width: 520px;
             width: 100%;
         }
 
         h1 {
-            color: #f5576c;
-            margin-bottom: 10px;
-            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            text-align: center;
+            color: #86868b;
+            margin-bottom: 32px;
+            font-size: 17px;
+            font-weight: 400;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }
 
         label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
+            color: #1d1d1f;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: -0.2px;
         }
 
         input[type="text"],
         input[type="password"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            font-size: 17px;
+            transition: all 0.2s;
+            background: #ffffff;
+            color: #1d1d1f;
         }
 
         input:focus {
             outline: none;
-            border-color: #f5576c;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        input::placeholder {
+            color: #86868b;
         }
 
         .error {
-            color: #ff4757;
-            font-size: 0.9em;
-            margin-top: 5px;
+            color: #ff3b30;
+            font-size: 13px;
+            margin-top: 6px;
         }
 
         .btn {
-            padding: 12px 30px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: bold;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: -0.3px;
         }
 
         .btn-join {
             width: 100%;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #007aff;
             color: white;
-            padding: 15px;
-            font-size: 1.1em;
+            padding: 16px;
+            font-size: 17px;
+            margin-top: 8px;
         }
 
         .btn-join:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+            background: #0051d5;
+        }
+
+        .btn-join:active {
+            transform: scale(0.99);
         }
 
         .btn-back {
             width: 100%;
-            background: #95a5a6;
-            color: white;
-            margin-top: 10px;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            margin-top: 12px;
+            border: 1px solid #d2d2d7;
         }
 
         .btn-back:hover {
-            background: #7f8c8d;
+            background: #e8e8ed;
         }
 
         .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
+            background: #f5f5f7;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 28px;
         }
 
         .info-box p {
-            color: #1976d2;
+            color: #1d1d1f;
             margin: 0;
-            font-size: 0.95em;
+            font-size: 15px;
+            line-height: 1.5;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 25px;
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 28px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>👨‍🎓 학생용 강의참여</h1>
+        <h1>학생용 강의참여</h1>
         <p class="subtitle">강의실에 입장하세요</p>
 
         <div class="info-box">
-            <p>💡 교사에게 받은 링크를 통해 접속했거나, 직접 강의실 ID를 입력할 수 있습니다.</p>
+            <p>교사에게 받은 링크를 통해 접속했거나, 직접 강의실 ID를 입력할 수 있습니다</p>
         </div>
 
         <form id="studentForm">
             <div class="form-group">
                 <label for="roomId">강의실 ID</label>
-                <input type="text" id="roomId" placeholder="room_1234567890_abcd" required>
+                <input type="text" id="roomId" placeholder="room_1234567890_abcd" required autocomplete="off">
                 <div id="roomError" class="error"></div>
             </div>
 
             <div class="form-group">
                 <label for="studentName">이름</label>
-                <input type="text" id="studentName" placeholder="홍길동" required>
+                <input type="text" id="studentName" placeholder="홍길동" required autocomplete="off">
                 <div id="nameError" class="error"></div>
             </div>
 
             <div class="form-group">
                 <label for="studentPassword">비밀번호</label>
-                <input type="password" id="studentPassword" placeholder="교사가 제공한 비밀번호" required>
+                <input type="password" id="studentPassword" placeholder="교사가 제공한 비밀번호" required autocomplete="off">
                 <div id="passwordError" class="error"></div>
             </div>
 
             <button type="submit" class="btn btn-join">강의실 입장</button>
         </form>
 
-        <button class="btn btn-back" onclick="location.href='index.html'">← 돌아가기</button>
+        <button class="btn btn-back" onclick="location.href='index.html'">돌아가기</button>
     </div>
 
     <script>
