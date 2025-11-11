@@ -12,104 +12,140 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #f5f5f7;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 60px 40px;
-            max-width: 500px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            padding: 64px 48px;
+            max-width: 480px;
             width: 100%;
             text-align: center;
         }
 
-        h1 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 2.5em;
+        .logo {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
-            color: #666;
-            margin-bottom: 50px;
-            font-size: 1.1em;
+            color: #86868b;
+            margin-bottom: 48px;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.5;
         }
 
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
         }
 
         .btn {
-            padding: 20px 30px;
+            padding: 16px 24px;
             border: none;
-            border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: bold;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: block;
+            letter-spacing: -0.3px;
         }
 
         .btn-teacher {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #007aff;
             color: white;
         }
 
         .btn-teacher:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+            background: #0051d5;
+            transform: scale(1.01);
+        }
+
+        .btn-teacher:active {
+            transform: scale(0.99);
         }
 
         .btn-student {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: 1px solid #d2d2d7;
         }
 
         .btn-student:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.5);
+            background: #e8e8ed;
+            border-color: #b8b8bd;
+        }
+
+        .btn-student:active {
+            transform: scale(0.99);
+        }
+
+        .divider {
+            margin: 32px 0;
+            height: 1px;
+            background: #d2d2d7;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #86868b;
+            line-height: 1.6;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 40px 20px;
+                padding: 48px 32px;
             }
 
-            h1 {
-                font-size: 2em;
+            .logo {
+                font-size: 40px;
             }
 
             .btn {
-                padding: 15px 20px;
-                font-size: 1em;
+                padding: 14px 20px;
+                font-size: 16px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📚 ezlive</h1>
+        <h1 class="logo">ezlive</h1>
         <p class="subtitle">실시간 화상강의 플랫폼</p>
         
         <div class="button-group">
             <button class="btn btn-teacher" onclick="location.href='teacher.html'">
-                👨‍🏫 교사용 화상강의 생성
+                교사용 화상강의 생성
             </button>
             <button class="btn btn-student" onclick="location.href='student.html'">
-                👨‍🎓 학생용 강의참여
+                학생용 강의참여
             </button>
         </div>
+
+        <div class="divider"></div>
+        
+        <p class="info-text">
+            Chrome 또는 Safari 브라우저 사용을 권장합니다
+        </p>
     </div>
 
     <script>
@@ -122,7 +158,7 @@
             const isFacebook = userAgent.includes('fbav') || userAgent.includes('fban');
             
             if (isKakao || isLine || isInsta || isFacebook) {
-                alert('인앱 브라우저에서는 카메라와 마이크 접근이 제한될 수 있습니다.\n\n우측 상단 메뉴(⋯)를 눌러\n"외부 브라우저로 열기"를 선택해주세요.\n\n크롬(Chrome) 또는 사파리(Safari) 브라우저 사용을 권장합니다.');
+                alert('인앱 브라우저에서는 카메라와 마이크 접근이 제한될 수 있습니다.\n\n우측 상단 메뉴를 눌러 "외부 브라우저로 열기"를 선택해주세요.');
             }
         }
 
