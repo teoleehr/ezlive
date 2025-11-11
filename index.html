@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ezlive - 화상강의 플랫폼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 60px 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 50px;
+            font-size: 1.1em;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 20px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .btn-teacher {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-teacher:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-student {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-student:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .btn {
+                padding: 15px 20px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 ezlive</h1>
+        <p class="subtitle">실시간 화상강의 플랫폼</p>
+        
+        <div class="button-group">
+            <button class="btn btn-teacher" onclick="location.href='teacher.html'">
+                👨‍🏫 교사용 화상강의 생성
+            </button>
+            <button class="btn btn-student" onclick="location.href='student.html'">
+                👨‍🎓 학생용 강의참여
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 카카오톡 인앱브라우저 감지 및 외부 브라우저 유도
+        function detectInAppBrowser() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isKakao = userAgent.includes('kakaotalk');
+            const isLine = userAgent.includes('line');
+            const isInsta = userAgent.includes('instagram');
+            const isFacebook = userAgent.includes('fbav') || userAgent.includes('fban');
+            
+            if (isKakao || isLine || isInsta || isFacebook) {
+                alert('인앱 브라우저에서는 카메라와 마이크 접근이 제한될 수 있습니다.\n\n우측 상단 메뉴(⋯)를 눌러\n"외부 브라우저로 열기"를 선택해주세요.\n\n크롬(Chrome) 또는 사파리(Safari) 브라우저 사용을 권장합니다.');
+            }
+        }
+
+        window.addEventListener('load', detectInAppBrowser);
+    </script>
+</body>
+</html>

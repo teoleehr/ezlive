@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>판서도구 - ezlive</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ecf0f1;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            background: #2c3e50;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding-right: 15px;
+            border-right: 2px solid #34495e;
+        }
+
+        .tool-group:last-child {
+            border-right: none;
+        }
+
+        .tool-btn {
+            background: #34495e;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tool-btn:hover {
+            background: #4a5f7f;
+            transform: translateY(-2px);
+        }
+
+        .tool-btn.active {
+            background: #3498db;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .size-slider {
+            width: 150px;
+        }
+
+        .size-display {
+            color: white;
+            font-weight: bold;
+            min-width: 30px;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: calc(100vh - 80px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ecf0f1;
+            overflow: auto;
+        }
+
+        #canvas {
+            background: white;
+            cursor: crosshair;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .page-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .save-btn {
+            background: #27ae60;
+        }
+
+        .save-btn:hover {
+            background: #229954;
+        }
+
+        .clear-btn {
+            background: #e74c3c;
+        }
+
+        .clear-btn:hover {
+            background: #c0392b;
+        }
+
+        .close-btn {
+            background: #95a5a6;
+        }
+
+        .close-btn:hover {
+            background: #7f8c8d;
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                padding: 10px;
+                gap: 8px;
+            }
+
+            .tool-btn {
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .size-slider {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="tool-group">
+            <button class="tool-btn active" onclick="selectTool('pen')" id="penBtn">
+                ✏️ 펜
+            </button>
+            <button class="tool-btn" onclick="selectTool('eraser')" id="eraserBtn">
+                🧹 지우개
+            </button>
+            <button class="tool-btn" onclick="selectTool('pointer')" id="pointerBtn">
+                🖱️ 포인터
+            </button>
+        </div>
+
+        <div class="tool-group">
+            <label style="color: white;">색상:</label>
+            <input type="color" class="color-picker" id="colorPicker" value="#000000" onchange="changeColor()">
+        </div>
+
+        <div class="tool-group">
+            <label style="color: white;">크기:</label>
+            <input type="range" class="size-slider" id="sizeSlider" min="1" max="50" value="3" oninput="changeSize()">
+            <span class="size-display" id="sizeDisplay">3</span>
+        </div>
+
+        <div class="tool-group">
+            <button class="tool-btn clear-btn" onclick="clearCanvas()">
+                🗑️ 전체지우기
+            </button>
+        </div>
+
+        <div class="tool-group">
+            <button class="tool-btn" onclick="newPage()">
+                📄 새페이지
+            </button>
+            <button class="tool-btn" onclick="previousPage()">
+                ◀️ 이전
+            </button>
+            <button class="tool-btn" onclick="nextPage()">
+                ▶️ 다음
+            </button>
+        </div>
+
+        <div class="tool-group">
+            <button class="tool-btn save-btn" onclick="saveCurrentPage()">
+                💾 현재페이지 PNG
+            </button>
+            <button class="tool-btn save-btn" onclick="saveAllPagesPDF()">
+                📚 모두 PDF저장
+            </button>
+        </div>
+
+        <div class="tool-group">
+            <button class="tool-btn close-btn" onclick="closeWhiteboard()">
+                ❌ 종료
+            </button>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="canvas" width="1200" height="800"></canvas>
+    </div>
+
+    <div class="page-info">
+        페이지: <span id="currentPage">1</span> / <span id="totalPages">1</span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let isDrawing = false;
+        let currentTool = 'pen';
+        let currentColor = '#000000';
+        let currentSize = 3;
+        let pages = [[]]; // 각 페이지의 그리기 데이터 저장
+        let currentPageIndex = 0;
+        
+        // 캔버스 초기화
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // 도구 선택
+        function selectTool(tool) {
+            currentTool = tool;
+            
+            // 버튼 활성화 표시
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (tool === 'pen') {
+                document.getElementById('penBtn').classList.add('active');
+                canvas.style.cursor = 'crosshair';
+            } else if (tool === 'eraser') {
+                document.getElementById('eraserBtn').classList.add('active');
+                canvas.style.cursor = 'grab';
+            } else if (tool === 'pointer') {
+                document.getElementById('pointerBtn').classList.add('active');
+                canvas.style.cursor = 'pointer';
+            }
+        }
+
+        // 색상 변경
+        function changeColor() {
+            currentColor = document.getElementById('colorPicker').value;
+        }
+
+        // 크기 변경
+        function changeSize() {
+            currentSize = document.getElementById('sizeSlider').value;
+            document.getElementById('sizeDisplay').textContent = currentSize;
+        }
+
+        // 그리기 시작
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('touchstart', startDrawing);
+
+        function startDrawing(e) {
+            if (currentTool === 'pointer') return;
+            
+            isDrawing = true;
+            const pos = getMousePos(e);
+            
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            
+            // 현재 그리기 시작점 저장
+            pages[currentPageIndex].push({
+                tool: currentTool,
+                color: currentColor,
+                size: currentSize,
+                points: [pos]
+            });
+        }
+
+        // 그리기
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchmove', draw);
+
+        function draw(e) {
+            if (!isDrawing) return;
+            if (currentTool === 'pointer') return;
+            
+            const pos = getMousePos(e);
+            
+            if (currentTool === 'pen') {
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = currentSize;
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            } else if (currentTool === 'eraser') {
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = currentSize * 2;
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+            
+            // 현재 선의 점 추가
+            const currentStroke = pages[currentPageIndex][pages[currentPageIndex].length - 1];
+            if (currentStroke) {
+                currentStroke.points.push(pos);
+            }
+        }
+
+        // 그리기 종료
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                ctx.beginPath();
+            }
+        }
+
+        // 마우스 위치 가져오기
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // 캔버스 전체 지우기
+        function clearCanvas() {
+            if (confirm('현재 페이지를 모두 지우시겠습니까?')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pages[currentPageIndex] = [];
+            }
+        }
+
+        // 새 페이지
+        function newPage() {
+            pages.push([]);
+            currentPageIndex = pages.length - 1;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            updatePageInfo();
+        }
+
+        // 이전 페이지
+        function previousPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                redrawCurrentPage();
+                updatePageInfo();
+            }
+        }
+
+        // 다음 페이지
+        function nextPage() {
+            if (currentPageIndex < pages.length - 1) {
+                currentPageIndex++;
+                redrawCurrentPage();
+                updatePageInfo();
+            }
+        }
+
+        // 현재 페이지 다시 그리기
+        function redrawCurrentPage() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const pageData = pages[currentPageIndex];
+            
+            pageData.forEach(stroke => {
+                ctx.beginPath();
+                ctx.strokeStyle = stroke.tool === 'eraser' ? '#ffffff' : stroke.color;
+                ctx.lineWidth = stroke.tool === 'eraser' ? stroke.size * 2 : stroke.size;
+                
+                stroke.points.forEach((point, index) => {
+                    if (index === 0) {
+                        ctx.moveTo(point.x, point.y);
+                    } else {
+                        ctx.lineTo(point.x, point.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+        }
+
+        // 페이지 정보 업데이트
+        function updatePageInfo() {
+            document.getElementById('currentPage').textContent = currentPageIndex + 1;
+            document.getElementById('totalPages').textContent = pages.length;
+        }
+
+        // 현재 페이지 PNG 저장
+        function saveCurrentPage() {
+            const link = document.createElement('a');
+            link.download = `whiteboard_page_${currentPageIndex + 1}_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // 모든 페이지 PDF 저장
+        async function saveAllPagesPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('landscape', 'px', [canvas.width, canvas.height]);
+            
+            for (let i = 0; i < pages.length; i++) {
+                // 각 페이지 렌더링
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // 흰색 배경
+                tempCtx.fillStyle = '#ffffff';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // 페이지 내용 그리기
+                const pageData = pages[i];
+                pageData.forEach(stroke => {
+                    tempCtx.beginPath();
+                    tempCtx.strokeStyle = stroke.tool === 'eraser' ? '#ffffff' : stroke.color;
+                    tempCtx.lineWidth = stroke.tool === 'eraser' ? stroke.size * 2 : stroke.size;
+                    tempCtx.lineCap = 'round';
+                    tempCtx.lineJoin = 'round';
+                    
+                    stroke.points.forEach((point, index) => {
+                        if (index === 0) {
+                            tempCtx.moveTo(point.x, point.y);
+                        } else {
+                            tempCtx.lineTo(point.x, point.y);
+                            tempCtx.stroke();
+                        }
+                    });
+                });
+                
+                // PDF에 추가
+                const imgData = tempCanvas.toDataURL('image/png');
+                
+                if (i > 0) {
+                    pdf.addPage();
+                }
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+            }
+            
+            pdf.save(`whiteboard_all_pages_${Date.now()}.pdf`);
+        }
+
+        // 판서도구 종료
+        function closeWhiteboard() {
+            if (confirm('판서도구를 종료하시겠습니까?\n저장하지 않은 내용은 사라집니다.')) {
+                window.close();
+            }
+        }
+
+        // 초기 페이지 정보 표시
+        updatePageInfo();
+    </script>
+</body>
+</html>

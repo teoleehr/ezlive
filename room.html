@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>화상강의실 - ezlive</title>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 비디오 영역 */
+        .video-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #16213e;
+            position: relative;
+        }
+
+        .videos-grid {
+            flex: 1;
+            display: grid;
+            gap: 10px;
+            padding: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-auto-rows: 1fr;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #0f3460;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .video-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .video-control-btn {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .video-control-btn:hover {
+            background: rgba(0,0,0,0.9);
+        }
+
+        /* 컨트롤 버튼 영역 */
+        .control-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .control-btn.inactive {
+            background: #f44336;
+            border-color: #f44336;
+        }
+
+        /* 채팅 영역 */
+        .chat-container {
+            width: 350px;
+            background: #0f3460;
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #16213e;
+        }
+
+        .chat-header {
+            background: #16213e;
+            padding: 15px;
+            border-bottom: 2px solid #1a1a2e;
+            font-weight: bold;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.own {
+            background: #667eea;
+            align-self: flex-end;
+        }
+
+        .message.other {
+            background: #2c3e50;
+            align-self: flex-start;
+        }
+
+        .message-sender {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .message-text {
+            font-size: 0.95em;
+        }
+
+        .message-time {
+            font-size: 0.7em;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        .file-message {
+            background: #34495e;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .file-link {
+            color: #3498db;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            background: #16213e;
+            border-top: 2px solid #1a1a2e;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #0f3460;
+            color: white;
+            font-size: 0.95em;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            background: #1a1a2e;
+        }
+
+        .send-btn {
+            background: #667eea;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .send-btn:hover {
+            background: #5568d3;
+        }
+
+        .file-input-wrapper {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-btn {
+            background: #34495e;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .file-btn:hover {
+            background: #2c3e50;
+        }
+
+        /* 채팅 숨김/보이기 토글 */
+        .chat-hidden {
+            display: none;
+        }
+
+        /* 전체화면 모드 */
+        .fullscreen-mode .videos-grid {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+        }
+
+        .fullscreen-mode .video-wrapper:not(.fullscreen-active) {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 200px;
+            height: 150px;
+            z-index: 50;
+        }
+
+        .fullscreen-mode .video-wrapper.fullscreen-active {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        /* CSV 저장 버튼 */
+        .csv-btn {
+            background: #27ae60;
+        }
+
+        .csv-btn:hover {
+            background: #229954;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 100%;
+                position: absolute;
+                right: 0;
+                height: 100%;
+                z-index: 200;
+                transform: translateX(100%);
+                transition: transform 0.3s;
+            }
+
+            .chat-container.mobile-visible {
+                transform: translateX(0);
+            }
+
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 로딩 스피너 */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="main-container">
+        <div class="video-container">
+            <div class="control-panel">
+                <button class="control-btn active" id="toggleVideo" onclick="toggleVideo()">
+                    📹 비디오
+                </button>
+                <button class="control-btn active" id="toggleAudio" onclick="toggleAudio()">
+                    🎤 오디오
+                </button>
+                <button class="control-btn" id="shareScreen" onclick="shareScreen()">
+                    🖥️ 화면공유
+                </button>
+                <button class="control-btn" id="toggleChat" onclick="toggleChat()">
+                    💬 채팅
+                </button>
+                <button class="control-btn" id="whiteboard" onclick="openWhiteboard()">
+                    ✏️ 판서도구
+                </button>
+                <button class="control-btn csv-btn" onclick="saveChatsToCSV()">
+                    💾 저장
+                </button>
+                <button class="control-btn inactive" onclick="leaveRoom()">
+                    🚪 종료
+                </button>
+            </div>
+            
+            <div class="videos-grid" id="videosGrid">
+                <!-- 비디오 스트림이 여기에 추가됨 -->
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                💬 채팅
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- 채팅 메시지가 여기에 추가됨 -->
+            </div>
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="메시지를 입력하세요..." onkeypress="handleChatKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()">전송</button>
+                </div>
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" onchange="sendFile()">
+                    <button class="file-btn" onclick="document.getElementById('fileInput').click()">
+                        📎 파일 첨부
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="room.js"></script>
+</body>
+</html>

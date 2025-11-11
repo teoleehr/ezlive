@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교사용 화상강의 생성 - ezlive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .student-list {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .btn-remove {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .btn-remove:hover {
+            background: #ff3838;
+        }
+
+        .add-student {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .add-student input {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #45a049;
+        }
+
+        .btn-create {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 1.1em;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-back {
+            width: 100%;
+            background: #95a5a6;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-back:hover {
+            background: #7f8c8d;
+        }
+
+        .error {
+            color: #ff4757;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .room-link {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 10px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            .add-student {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👨‍🏫 교사용 화상강의 생성</h1>
+        <p class="subtitle">강의실을 생성하고 학생 정보를 등록하세요</p>
+
+        <form id="teacherForm">
+            <div class="form-group">
+                <label for="teacherPassword">교사 비밀번호</label>
+                <input type="password" id="teacherPassword" placeholder="a123456!" required>
+                <div id="passwordError" class="error"></div>
+            </div>
+
+            <div class="form-group">
+                <label>학생 등록 (이름과 비밀번호)</label>
+                <div class="add-student">
+                    <input type="text" id="studentName" placeholder="학생 이름">
+                    <input type="text" id="studentPassword" placeholder="비밀번호">
+                    <button type="button" class="btn btn-add" onclick="addStudent()">추가</button>
+                </div>
+                <div class="student-list" id="studentList">
+                    <p style="color: #999; text-align: center;">등록된 학생이 없습니다</p>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-create">강의실 생성하기</button>
+        </form>
+
+        <div id="successMessage" class="success">
+            <h3>✅ 강의실이 생성되었습니다!</h3>
+            <p style="margin-top: 10px;">아래 링크를 학생들에게 공유하세요:</p>
+            <div class="room-link" id="roomLink"></div>
+            <button class="copy-btn" onclick="copyLink()">링크 복사</button>
+            <button class="btn btn-create" onclick="enterRoom()" style="margin-top: 15px;">강의실 입장</button>
+        </div>
+
+        <button class="btn btn-back" onclick="location.href='index.html'">← 돌아가기</button>
+    </div>
+
+    <script>
+        let students = [];
+        let roomId = null;
+
+        function addStudent() {
+            const name = document.getElementById('studentName').value.trim();
+            const password = document.getElementById('studentPassword').value.trim();
+
+            if (!name || !password) {
+                alert('학생 이름과 비밀번호를 모두 입력해주세요.');
+                return;
+            }
+
+            students.push({ name, password });
+            
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentPassword').value = '';
+
+            updateStudentList();
+        }
+
+        function removeStudent(index) {
+            students.splice(index, 1);
+            updateStudentList();
+        }
+
+        function updateStudentList() {
+            const list = document.getElementById('studentList');
+            
+            if (students.length === 0) {
+                list.innerHTML = '<p style="color: #999; text-align: center;">등록된 학생이 없습니다</p>';
+                return;
+            }
+
+            list.innerHTML = students.map((student, index) => `
+                <div class="student-item">
+                    <div class="student-info">
+                        <strong>${student.name}</strong> (비밀번호: ${student.password})
+                    </div>
+                    <button class="btn-remove" onclick="removeStudent(${index})">삭제</button>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('teacherForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const password = document.getElementById('teacherPassword').value;
+            const errorDiv = document.getElementById('passwordError');
+
+            if (password !== 'a123456!') {
+                errorDiv.textContent = '교사 비밀번호가 올바르지 않습니다.';
+                return;
+            }
+
+            if (students.length === 0) {
+                alert('최소 1명 이상의 학생을 등록해주세요.');
+                return;
+            }
+
+            errorDiv.textContent = '';
+
+            // 룸 ID 생성
+            roomId = 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+            // 학생 정보를 localStorage에 저장
+            const roomData = {
+                roomId: roomId,
+                students: students,
+                createdAt: new Date().toISOString()
+            };
+
+            localStorage.setItem(roomId, JSON.stringify(roomData));
+
+            // 링크 생성
+            const roomLink = `${window.location.origin}/student.html?room=${roomId}`;
+            document.getElementById('roomLink').textContent = roomLink;
+
+            // 폼 숨기고 성공 메시지 표시
+            document.getElementById('teacherForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+        });
+
+        function copyLink() {
+            const link = document.getElementById('roomLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('링크가 복사되었습니다!');
+            }).catch(err => {
+                alert('링크 복사에 실패했습니다. 수동으로 복사해주세요.');
+            });
+        }
+
+        function enterRoom() {
+            window.location.href = `room.html?room=${roomId}&role=teacher`;
+        }
+    </script>
+</body>
+</html>
